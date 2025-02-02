@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Slider Bölümü -->
+<section class="mb-5">
+    <div id="mainSlider" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner rounded-3 shadow-lg">
+            {% for post in slider_posts %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img 
+                    src="{{ post.image.url }}" 
+                    class="d-block w-100" 
+                    alt="{{ post.title }}"
+                    style="height: 500px; object-fit: cover;"
+                >
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-4 rounded">
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.content|truncatechars:150 }}</p>
+                    <a href="{% url 'post_detail' post.slug %}" class="btn btn-primary">Devamını Oku</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainSlider" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainSlider" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    </div>
+</section>
+
+<!-- Kategoriler -->
+<section class="mb-5">
+    <h2 class="mb-4 border-bottom pb-2">Kategoriler</h2>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for category in categories %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 category-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-0">
+                        <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none text-dark stretched-link">
+                            {{ category.name }}
+                        </a>
+                    </h5>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                Henüz kategori eklenmemiş.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Son Eklenen 3 Post -->
+<section class="mb-5">
+    <h2 class="mb-4 border-bottom pb-2">Son Yazılar</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for post in slider_posts %}
+        <div class="col">
+            <div class="card h-100 shadow">
+                <img 
+                    src="{{ post.image.url }}" 
+                    class="card-img-top" 
+                    alt="{{ post.title }}"
+                    style="height: 200px; object-fit: cover;"
+                >
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content|truncatechars:100 }}</p>
+                    <a href="{% url 'post_detail' post.slug %}" class="btn btn-outline-primary">Devamını Oku</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- En Çok Okunanlar -->
+<section class="mb-5">
+    <h2 class="mb-4 border-bottom pb-2">Çok Okunanlar</h2>
+    <div class="row row-cols-1 row-cols-lg-3 g-4">
+        {% for post in popular_posts %}
+        <div class="col">
+            <div class="card h-100 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="text-muted small">{{ post.views }} okunma</p>
+                    <p class="card-text">{{ post.content|truncatechars:150 }}</p>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'post_detail' post.slug %}" class="btn btn-sm btn-outline-secondary">Devamını Oku</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Tüm Yazılar -->
+<section class="mb-5">
+    <h2 class="mb-4 border-bottom pb-2">Tüm Yazılar</h2>
+    <div class="row g-4">
+        {% for post in all_posts %}
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img 
+                            src="{{ post.image.url }}" 
+                            class="img-fluid rounded-start" 
+                            alt="{{ post.title }}"
+                            style="height: 200px; object-fit: cover;"
+                        >
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <p class="card-text">{{ post.content|truncatechars:200 }}</p>
+                            <a href="{% url 'post_detail' post.slug %}" class="btn btn-link">Devamını Oku</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

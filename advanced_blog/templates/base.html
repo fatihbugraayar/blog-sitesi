@@ -1,0 +1,163 @@
+{% load static %} 
+{% load crispy_forms_tags %} <!-- BU SATIRI EKLEYİN -->
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dev Blog{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Özel CSS -->
+    {% block extrastyle %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- CKEditor -->
+    <script src="https://cdn.ckeditor.com/4.16.2/full/ckeditor.js"></script>
+    
+    <style>
+        .category-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .category-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .category-card .card-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+   <!-- base.html içindeki navbar bölümü -->
+<!-- Masaüstü Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark d-none d-lg-block">
+    <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="bi bi-stars me-2"></i>Blogium
+        </a>
+
+        <!-- Masaüstü Arama -->
+        <form class="d-flex col-6 mx-4" action="{% url 'search' %}">
+            
+            <div class="input-group">
+                <input 
+                    type="search" 
+                    class="form-control search-input" 
+                    placeholder="Makale ara..."
+                    name="q"
+                >
+                <button class="btn btn-outline-light" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <!-- Sağ Menü -->
+        <div class="d-flex align-items-center">
+            {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-2"></i>{{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profil</a></li>
+                        <li><a class="dropdown-item" href="{% url 'post_new' %}">Yeni Yazı</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Çıkış Yap</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Giriş</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Kayıt Ol</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Bottom Navbar (Önceki tasarım geliştirilmiş hali) -->
+<!-- Mobile Navbar -->
+<nav class="mobile-nav d-lg-none fixed-bottom bg-dark text-white shadow-lg">
+    <div class="container">
+        <div class="nav-icons">
+            <!-- Arama Butonu -->
+            <button class="nav-icon" onclick="toggleMobileSearch()">
+                <i class="bi bi-search"></i>
+            </button>
+            
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="nav-logo">
+                <i class="bi bi-house-door"></i>
+            </a>
+            
+            <!-- Profil/Giriş -->
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="nav-icon">
+                    <i class="bi bi-person-circle"></i>
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-icon">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Arama Overlay -->
+<div id="mobileSearchOverlay" class="mobile-search-overlay">
+    <div class="search-header">
+        <button class="close-btn" onclick="toggleMobileSearch()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="search-content">
+        <form action="{% url 'search' %}" method="GET" class="search-form">
+            <input 
+                type="search" 
+                class="search-input" 
+                placeholder="Arama yap..."
+                name="q"
+                autofocus
+            >
+            <button type="submit" class="search-submit">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap Icons için CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <main class="container my-5">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2023 Dev Blog - Tüm hakları saklıdır</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS ve Popper.js -->
+     <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

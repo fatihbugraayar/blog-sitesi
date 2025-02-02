@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}Postu Düzenle{% else %}Yeni Post{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<!-- CKEditor CSS -->
+<link href="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.css" rel="stylesheet">
+<!-- CKEditor JS -->
+<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{% if form.instance.pk %}Postu Düzenle{% else %}Yeni Post{% endif %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            {{ form.title|as_crispy_field }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.category|as_crispy_field }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tags_input|as_crispy_field }}
+                            <small class="text-muted">Etiketleri virgülle ayırarak yazın (örn: python, django, web)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_content" class="form-label">İçerik</label>
+                            {{ form.content }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.image|as_crispy_field }}
+                            {% if form.instance.image %}
+                            <div class="mt-2">
+                                <p>Mevcut Görsel:</p>
+                                <img src="{{ form.instance.image.url }}" alt="Mevcut Post Görseli" class="img-fluid mb-2" style="max-height: 200px;">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Kaydet
+                            </button>
+                            {% if form.instance.pk %}
+                                <a href="{% url 'post_detail' slug=form.instance.slug %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>İptal
+                                </a>
+                            {% else %}
+                                <a href="{% url 'profile' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>İptal
+                                </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // CKEditor'ü başlat
+    CKEDITOR.replace('id_content', {
+        height: '400px',
+        width: '100%',
+        language: 'tr'
+    });
+
+    // Select2'yi başlat
+    $(document).ready(function() {
+        $('#id_category').select2({
+            placeholder: "Kategori seçin",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}

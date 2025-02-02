@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sol Sütun - Profil Bilgileri -->
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <img 
+                        src="{{ user.profile.profile_pic.url }}" 
+                        class="rounded-circle mb-3" 
+                        width="150" 
+                        height="150"
+                        alt="Profil Resmi"
+                    >
+                    <h3 class="mb-0">{{ user.get_full_name }}</h3>
+                    <p class="text-muted">@{{ user.username }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <button 
+                            class="btn btn-outline-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#avatarModal"
+                        >
+                            Resmi Değiştir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Sütun - Formlar -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Profil Ayarları</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ u_form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ u_form.last_name|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ u_form.email|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ p_form.bio|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ p_form.location|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ p_form.birth_date|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Güncelle
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if user.is_staff %}
+            <!-- Admin Post Yönetimi -->
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Post Yönetimi</h4>
+                    <a href="{% url 'post_new' %}" class="btn btn-success">Yeni Post Oluştur</a>
+                </div>
+                <div class="card-body">
+                    {% if admin_posts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Başlık</th>
+                                        <th>Tarih</th>
+                                        <th>Görüntülenme</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for post in admin_posts %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'post_detail' slug=post.slug %}" class="text-decoration-none">
+                                                {{ post.title }}
+                                            </a>
+                                        </td>
+                                        <td>{{ post.published_date|date:"d.m.Y" }}</td>
+                                        <td>{{ post.views }}</td>
+                                        <td>
+                                            <a href="{% url 'post_edit' slug=post.slug %}" class="btn btn-sm btn-warning">
+                                                Düzenle
+                                            </a>
+                                            <a href="{% url 'post_delete' slug=post.slug %}" class="btn btn-sm btn-danger">
+                                                Sil
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center my-3">Henüz hiç post oluşturmadınız.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Avatar Modal -->
+<div class="modal fade" id="avatarModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profil Resmi Yükle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'profile' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input 
+                        type="file" 
+                        name="profile_pic" 
+                        class="form-control"
+                        accept="image/*"
+                    >
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Yükle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

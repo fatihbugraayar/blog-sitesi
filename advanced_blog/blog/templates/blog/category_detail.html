@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Kategorisi{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Kategori Başlığı -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-primary text-white p-4 rounded-3 shadow">
+                <h1 class="display-4 mb-0">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="lead mb-0 mt-2">{{ category.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Yazılar -->
+    <div class="row g-4">
+        {% for post in posts %}
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm hover-card">
+                {% if post.image %}
+                <img 
+                    src="{{ post.image.url }}" 
+                    class="card-img-top" 
+                    alt="{{ post.title }}"
+                    style="height: 200px; object-fit: cover;"
+                >
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="h5 card-title">{{ post.title }}</h2>
+                    <p class="card-text text-muted small">
+                        <i class="bi bi-person-circle"></i> {{ post.author }}
+                        <span class="mx-2">|</span>
+                        <i class="bi bi-calendar3"></i> {{ post.published_date|date:"d F Y" }}
+                        <span class="mx-2">|</span>
+                        <i class="bi bi-eye"></i> {{ post.views }} görüntülenme
+                    </p>
+                    <p class="card-text">{{ post.content|striptags|truncatechars:150 }}</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'post_detail' post.slug %}" class="btn btn-outline-primary btn-sm">
+                        Devamını Oku <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4 class="alert-heading">Henüz Yazı Yok!</h4>
+                <p class="mb-0">Bu kategoride henüz yazı bulunmuyor. Daha sonra tekrar kontrol edin.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="card shadow">
+    {% if post.image %}
+    <img src="{{ post.image.url }}" class="card-img-top post-image" alt="{{ post.title }}">
+    {% endif %}
+    <div class="card-body">
+        <h1 class="card-title display-4">{{ post.title }}</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="text-muted">
+                <span>Yazar: 
+                    <a href="{% url 'profile_detail' post.author.username %}" class="text-decoration-none">
+                        {{ post.author }}
+                    </a>
+                </span><br>
+                <span>{{ post.published_date|date:"d F Y H:i" }}</span>
+            </div>
+        </div>
+        <div class="post-content">
+            {{ post.content|linebreaks }}
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Tüm Yazılar
+        </a>
+    </div>
+    <!-- Yorumlar Bölümü -->
+<div class="mt-5">
+    <h3 class="mb-4">Yorumlar ({{ comments.count }})</h3>
+    
+    <!-- Yorum Formu -->
+    <div class="card mb-4 shadow">
+        <div class="card-body">
+            <h5 class="card-title">Yorum Yap</h5>
+            <form method="POST" action="{% url 'add_comment' post.slug %}">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit" class="btn btn-primary">Yorum Gönder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Yorum Listesi -->
+    {% for comment in comments %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+                <strong>{{ comment.author }}</strong>
+                <small class="text-muted">{{ comment.created_date|timesince }} önce</small>
+            </div>
+            <p class="mb-0">{{ comment.text }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">Henüz yorum yok. İlk yorumu sen yap!</div>
+    {% endfor %}
+</div>
+</article>
+{% endblock %}

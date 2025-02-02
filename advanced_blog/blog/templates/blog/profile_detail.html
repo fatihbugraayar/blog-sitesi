@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name }} - Profil{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sol Sütun - Profil Bilgileri -->
+        <div class="col-md-4">
+            <!-- Profil Kartı -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <img 
+                        src="{{ profile.profile_pic.url }}" 
+                        class="rounded-circle mb-3" 
+                        width="150" 
+                        height="150"
+                        alt="Profil Resmi"
+                        style="object-fit: cover;"
+                    >
+                    <h3 class="mb-0">{{ profile_user.get_full_name }}</h3>
+                    <p class="text-muted">@{{ profile_user.username }}</p>
+                    
+                    <!-- İstatistikler -->
+                    <div class="row text-center mb-4">
+                        <div class="col">
+                            <h5 class="mb-0" id="followers-count">{{ followers_count }}</h5>
+                            <small class="text-muted">Takipçi</small>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-0">{{ following_count }}</h5>
+                            <small class="text-muted">Takip</small>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-0">{{ post_count }}</h5>
+                            <small class="text-muted">Yazı</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Takip Et Butonu -->
+                    {% if user.is_authenticated and user != profile_user %}
+                    <button 
+                        class="btn {% if is_following %}btn-secondary{% else %}btn-primary{% endif %} w-100 follow-btn mb-3"
+                        data-username="{{ profile_user.username }}"
+                        onclick="toggleFollow(this)"
+                    >
+                        {% if is_following %}
+                            Takibi Bırak
+                        {% else %}
+                            Takip Et
+                        {% endif %}
+                    </button>
+                    {% endif %}
+                    
+                    <!-- Profil Bilgileri -->
+                    {% if profile.bio %}
+                    <div class="text-start mt-4">
+                        <h6 class="mb-2">Hakkında</h6>
+                        <p class="mb-3">{{ profile.bio }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.location %}
+                    <div class="text-start mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ profile.location }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.birth_date %}
+                    <div class="text-start mb-2">
+                        <i class="bi bi-calendar"></i> {{ profile.birth_date|date:"d F Y" }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-start">
+                        <i class="bi bi-eye"></i> Toplam {{ total_views }} görüntülenme
+                    </div>
+                </div>
+            </div>
+
+            <!-- Son Takipçiler -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Son Takipçiler</h6>
+                </div>
+                <div class="card-body">
+                    {% for follow in recent_followers %}
+                    <div class="d-flex align-items-center mb-2">
+                        <img 
+                            src="{{ follow.follower.profile.profile_pic.url }}" 
+                            class="rounded-circle me-2" 
+                            width="40" 
+                            height="40"
+                            alt="{{ follow.follower.username }}"
+                        >
+                        <div>
+                            <a href="{% url 'profile_detail' follow.follower.username %}" class="text-decoration-none">
+                                <strong>{{ follow.follower.get_full_name }}</strong>
+                                <br>
+                                <small class="text-muted">@{{ follow.follower.username }}</small>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mb-0">Henüz takipçi yok.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Son Takip Edilenler -->
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Son Takip Edilenler</h6>
+                </div>
+                <div class="card-body">
+                    {% for follow in recent_following %}
+                    <div class="d-flex align-items-center mb-2">
+                        <img 
+                            src="{{ follow.following.user.profile.profile_pic.url }}" 
+                            class="rounded-circle me-2" 
+                            width="40" 
+                            height="40"
+                            alt="{{ follow.following.user.username }}"
+                        >
+                        <div>
+                            <a href="{% url 'profile_detail' follow.following.user.username %}" class="text-decoration-none">
+                                <strong>{{ follow.following.user.get_full_name }}</strong>
+                                <br>
+                                <small class="text-muted">@{{ follow.following.user.username }}</small>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mb-0">Henüz takip edilen yok.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Sütun - Yazılar -->
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Yazılar</h4>
+                    <span class="badge bg-primary">{{ post_count }} yazı</span>
+                </div>
+                <div class="card-body">
+                    {% if posts %}
+                        {% for post in posts %}
+                        <div class="card mb-3">
+                            {% if post.image %}
+                            <img 
+                                src="{{ post.image.url }}" 
+                                class="card-img-top" 
+                                alt="{{ post.title }}"
+                                style="height: 200px; object-fit: cover;"
+                            >
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="card-text text-muted small">
+                                    <i class="bi bi-calendar3"></i> {{ post.published_date|date:"d F Y" }}
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-eye"></i> {{ post.views }} görüntülenme
+                                    {% if post.category %}
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-folder"></i> {{ post.category.name }}
+                                    {% endif %}
+                                </p>
+                                <p class="card-text">{{ post.content|striptags|truncatechars:200 }}</p>
+                                <a href="{% url 'post_detail' post.slug %}" class="btn btn-outline-primary btn-sm">
+                                    Devamını Oku <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="mb-0">Henüz yazı paylaşılmamış.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function toggleFollow(button) {
+    const username = button.dataset.username;
+    
+    fetch(`/profile/${username}/follow/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Buton metnini güncelle
+            button.textContent = data.is_following ? 'Takibi Bırak' : 'Takip Et';
+            button.classList.toggle('btn-primary');
+            button.classList.toggle('btn-secondary');
+            
+            // Takipçi sayısını güncelle
+            document.getElementById('followers-count').textContent = data.follower_count;
+            
+            // Bildirim göster
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Bir hata oluştu', 'error');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type) {
+    // Bootstrap toast veya başka bir bildirim sistemi kullanabilirsiniz
+    alert(message);
+}
+</script>
+{% endblock %}
+{% endblock %} 

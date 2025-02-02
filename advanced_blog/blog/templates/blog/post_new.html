@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Yeni Post Oluştur{% endblock %}
+
+{% block extra_head %}
+{{ form.media }}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if user.is_staff %}
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Yeni Post Oluştur</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.title|as_crispy_field }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.content }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.image|as_crispy_field }}
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Kaydet
+                                </button>
+                                <a href="{% url 'profile' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>İptal
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-danger text-center">
+                    <h4 class="alert-heading">Yetkisiz Erişim!</h4>
+                    <p>Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+                    <hr>
+                    <a href="{% url 'home' %}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Ana Sayfaya Dön
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
